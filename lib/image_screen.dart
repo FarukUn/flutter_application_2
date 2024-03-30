@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/image_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageScreen extends StatefulWidget {
@@ -14,51 +13,133 @@ class ImageScreen extends StatefulWidget {
 class _ImageScreenState extends State<ImageScreen> {
   File? image;
 
-  pickImage(ImageSource source) {
-    AppImagePicker(source: source).pick(onPick: (File? image) {
+  Future<void> pickImage(ImageSource source) async {
+    final pickedImage = await ImagePicker().pickImage(source: source);
+    if (pickedImage != null) {
       setState(() {
-        this.image = image;
+        image = File(pickedImage.path);
       });
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tomato Disease"),
+        title: Text(
+          "Tomato Disease Detection",
+          style: TextStyle(fontFamily: 'GoogleSans', fontSize: 20),
+        ),
         backgroundColor: Colors.green,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (image != null) Image.file(image!),
-          SizedBox(height: 20),
-          Text(
-            "Result:          ",
-            style: TextStyle(color: Colors.red, fontSize: 20),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 222, 239, 229),
+              Color.fromARGB(255, 193, 219, 195),
+            ],
           ),
-          SizedBox(height: 20),
-          Row(
+        ),
+        child: Center(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  pickImage(ImageSource.camera);
-                },
-                child: Text("Camera"),
+              if (image != null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20.0),
+                    child: Image.file(
+                      image!,
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(45),
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            Color.fromARGB(255, 13, 148, 96).withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.image,
+                    size: 100,
+                    color: Colors.black,
+                  ),
+                ),
+              SizedBox(height: 40),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.7),
+                  borderRadius: BorderRadius.zero,
+                ),
+                child: Text(
+                  "Result: Detected Disease Here",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 241, 164, 12),
+                    fontFamily: 'GoogleSans',
+                    fontSize: 18,
+                  ),
+                ),
               ),
-              SizedBox(width: 20),
-              ElevatedButton(
-                onPressed: () {
-                  pickImage(ImageSource.gallery);
-                },
-                child: Text("Gallery"),
+              SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      pickImage(ImageSource.camera);
+                    },
+                    icon: Icon(Icons.camera),
+                    label: Text("Camera"),
+                    style: ElevatedButton.styleFrom(
+                      textStyle: TextStyle(fontFamily: 'GoogleSans'),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(45),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      pickImage(ImageSource.gallery);
+                    },
+                    icon: Icon(Icons.image),
+                    label: Text("Gallery"),
+                    style: ElevatedButton.styleFrom(
+                      textStyle: TextStyle(fontFamily: 'GoogleSans'),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(45),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
